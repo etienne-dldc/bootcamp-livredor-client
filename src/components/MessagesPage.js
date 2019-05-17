@@ -28,6 +28,8 @@ class MessagesPage extends React.Component {
         },
       }
     );
+    await this.getMessages();
+    this.setState({ message: '' });
   };
 
   render() {
@@ -44,17 +46,26 @@ class MessagesPage extends React.Component {
           {this.props.token === null ? (
             <Link to="/login">Login</Link>
           ) : (
-            <form onSubmit={this.handleSubmit}>
-              <input
-                type="text"
-                name="message"
-                value={this.state.message}
-                onChange={event => {
-                  this.setState({ message: event.target.value });
+            <div>
+              <form onSubmit={this.handleSubmit}>
+                <input
+                  type="text"
+                  name="message"
+                  value={this.state.message}
+                  onChange={event => {
+                    this.setState({ message: event.target.value });
+                  }}
+                />
+                <button type="submit">Send</button>
+              </form>
+              <button
+                onClick={() => {
+                  this.props.unsetUserToken();
                 }}
-              />
-              <button type="submit">Send</button>
-            </form>
+              >
+                Logout
+              </button>
+            </div>
           )}
         </div>
       </div>
