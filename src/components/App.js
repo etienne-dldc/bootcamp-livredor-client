@@ -1,27 +1,56 @@
 import React from 'react';
-import axios from 'axios';
+import MessagesPage from './MessagesPage';
+import LoginPage from './LoginPage';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 class App extends React.Component {
   state = {
-    messages: null,
+    username: Cookies.get('username') || null,
+    token: Cookies.get('token') || null,
+  };
+
+  unsetUserToken = () => {
+    this.setState({
+      username: null,
+      token: null,
+    });
+    Cookies.remove('username');
+    Cookies.remove('token');
+  };
+
+  setUserToken = (username, token) => {
+    this.setState({
+      username: username,
+      token: token,
+    });
+    Cookies.set('username', username);
+    Cookies.set('token', token);
   };
 
   render() {
-    if (this.state.messages === null) {
-      return <div>Loading...</div>;
-    }
-    return (
-      <div>
-        {this.state.messages.map(message => {
-          return <div key={message.id}>{message.content}</div>;
-        })}
-      </div>
-    );
-  }
+    console.log('render App', this.state.token);
 
-  async componentDidMount() {
-    const response = await axios.get('https://livredor-api.herokuapp.com/messages');
-    this.setState({ messages: response.data });
+    return (
+      <BrowserRouter>
+        <Switch>
+          <Route
+            path="/"
+            exact={true}
+            render={() => <MessagesPage token={this.state.token} unsetUserToken={this.unsetUserToken} />}
+          />
+          <Route
+            path="/login"
+            render={() => {
+              if (this.state.token) {
+                return <Redirect to="/" />;
+              }
+              return <LoginPage setUserToken={this.setUserToken} />;
+            }}
+          />
+        </Switch>
+      </BrowserRouter>
+    );
   }
 }
 
