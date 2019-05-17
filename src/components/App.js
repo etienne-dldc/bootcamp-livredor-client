@@ -1,27 +1,18 @@
 import React from 'react';
-import axios from 'axios';
+import MessagesPage from './MessagesPage';
+import LoginPage from './LoginPage';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 class App extends React.Component {
-  state = {
-    messages: null,
-  };
-
   render() {
-    if (this.state.messages === null) {
-      return <div>Loading...</div>;
-    }
     return (
-      <div>
-        {this.state.messages.map(message => {
-          return <div key={message.id}>{message.content}</div>;
-        })}
-      </div>
+      <BrowserRouter>
+        <Switch>
+          <Route path="/" exact={true} component={MessagesPage} />
+          <Route path="/login" component={LoginPage} />
+        </Switch>
+      </BrowserRouter>
     );
-  }
-
-  async componentDidMount() {
-    const response = await axios.get('https://livredor-api.herokuapp.com/messages');
-    this.setState({ messages: response.data });
   }
 }
 
