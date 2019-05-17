@@ -20,7 +20,7 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <Switch>
-          <Route path="/" exact={true} component={MessagesPage} />
+          <Route path="/" exact={true} render={() => <MessagesPage token={this.state.token} />} />
           <Route path="/login" render={() => <LoginPage setUserToken={this.setUserToken} />} />
         </Switch>
       </BrowserRouter>
