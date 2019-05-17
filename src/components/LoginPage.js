@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 class LoginPage extends React.Component {
   state = {
@@ -29,7 +30,17 @@ class LoginPage extends React.Component {
             this.setState({ password: event.target.value });
           }}
         />
-        <button>Login</button>
+        <button
+          onClick={async () => {
+            const response = await axios.post('https://livredor-api.herokuapp.com/login', {
+              username: this.state.username,
+              password: this.state.password,
+            });
+            this.props.setUserToken(response.data.username, response.data.token);
+          }}
+        >
+          Login
+        </button>
       </div>
     );
   }
