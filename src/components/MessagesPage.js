@@ -1,80 +1,82 @@
-import React from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import React from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
-class MessagesPage extends React.Component {
-  state = {
-    messages: null,
-    message: '',
+const MessagesPage = ({ token, username, unsetUserToken }) => {
+  const [messages, setMessages] = React.useState(null);
+  const [message, setMessage] = React.useState("");
+
+  const getMessages = async () => {
+    setMessages(null);
+    const response = await axios.get(
+      "https://livredor-api.herokuapp.com/messages"
+    );
+    setMessages(response.data);
   };
 
-  getMessages = async () => {
-    this.setState({ messages: null });
-    const response = await axios.get('https://livredor-api.herokuapp.com/messages');
-    this.setState({ messages: response.data });
-  };
-
-  handleSubmit = async event => {
+  const handleSubmit = async event => {
     event.preventDefault();
 
     await axios.post(
-      'https://livredor-api.herokuapp.com/message',
+      "https://livredor-api.herokuapp.com/message",
       {
-        content: this.state.message,
+        content: message
       },
       {
         headers: {
-          authorization: 'Bearer ' + this.props.token,
-        },
+          authorization: "Bearer " + token
+        }
       }
     );
-    await this.getMessages();
-    this.setState({ message: '' });
+    await getMessages();
+    setMessage("");
   };
 
-  render() {
-    if (this.state.messages === null) {
-      return <div>Loading...</div>;
-    }
-    return (
+  React.useEffect(() => {
+    getMessages();
+  }, []);
+
+  if (messages === null) {
+    return <div>Loading...</div>;
+  }
+  return (
+    <div>
+      <button onClick={getMessages}>Refresh</button>
+      {messages.slice(-20).map(message => {
+        return <div key={message.id}>{message.content}</div>;
+      })}
       <div>
-        <button onClick={this.getMessages}>Refresh</button>
-        {this.state.messages.slice(-20).map(message => {
-          return <div key={message.id}>{message.content}</div>;
-        })}
-        <div>
-          {this.props.token === null ? (
-            <Link to="/login">Login</Link>
-          ) : (
-            <div>
-              <form onSubmit={this.handleSubmit}>
-                <input
-                  type="text"
-                  name="message"
-                  value={this.state.message}
-                  onChange={event => {
-                    this.setState({ message: event.target.value });
-                  }}
-                />
-                <button type="submit">Send</button>
-              </form>
+        {token === null ? (
+          <Link to="/login">Login</Link>
+        ) : (
+          <div>
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                name="message"
+                value={message}
+                onChange={event => {
+                  setMessage(event.target.value);
+                }}
+              />
+              <button type="submit">Send</button>
+            </form>
+
+            <p>
+              Logged in as {username}
               <button
                 onClick={() => {
-                  this.props.unsetUserToken();
+                  unsetUserToken();
                 }}
               >
                 Logout
               </button>
-            </div>
-          )}
-        </div>
+            </p>
+          </div>
+        )}
       </div>
-    );
-  }
-
-  componentDidMount() {
-    this.getMessages();
-  }
-}
+    </div>
+  );
+};
 
 export default MessagesPage;
